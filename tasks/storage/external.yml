@@ -1,0 +1,12 @@
+---
+- name: Get root filesystem partition
+  ansible.builtin.command: findmnt -n -o SOURCE /
+  register: current_filesystem_partition
+- name: Get root filesystem device
+  ansible.builtin.command: "lsblk -no pkname {{ current_filesystem_partition.stdout }}"
+  register: current_filesystem_device
+- name: Move the root filesystem to external (SATA or NVMe) storage
+  ansible.builtin.command: sh -c "echo Y | ubuntu-rockchip-install {{ filesystem_device }}"
+  when: filesystem_device != "/dev/{{ current_filesystem_device.stdout }}"
+  become: true
+  notify: reboot-pi

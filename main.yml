@@ -34,6 +34,17 @@
       notify: reboot-pi
       when: ansible_distribution == 'Ubuntu'
 
+    - name: Switch to external storage if available
+      include_tasks: tasks/storage/external.yml
+      args:
+        apply:
+          tags: ['external-storage']
+      when:
+        - ansible_distribution == 'Ubuntu'
+        - "'rockchip' in ansible_kernel"
+        - filesystem_device is defined
+      tags: ['external-storage']
+
     - name: Download K3s install script.
       ansible.builtin.get_url:
         url: https://get.k3s.io
