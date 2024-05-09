@@ -6,7 +6,9 @@
   ansible.builtin.command: "lsblk -no pkname {{ current_filesystem_partition.stdout }}"
   register: current_filesystem_device
 - name: Move the root filesystem to external (SATA or NVMe) storage
-  ansible.builtin.command: sh -c "echo Y | ubuntu-rockchip-install {{ filesystem_device }}"
-  when: filesystem_device != "/dev/{{ current_filesystem_device.stdout }}"
+  ansible.builtin.command: sh -c "yes | ubuntu-rockchip-install {{ filesystem_device }}"
+  vars:
+    current_device: "/dev/{{ current_filesystem_device.stdout }}"
+  when: filesystem_device != current_device
   become: true
   notify: reboot-pi
